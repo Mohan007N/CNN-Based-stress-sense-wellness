@@ -1,0 +1,7 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Procfile — Heroku / Render / Railway deployment
+# ─────────────────────────────────────────────────────────────────────────────
+# Uses gunicorn with 4 worker processes and a 120-second timeout.
+# wsgi:app tells gunicorn to import `app` from wsgi.py
+
+web: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --log-level info

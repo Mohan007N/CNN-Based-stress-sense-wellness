@@ -1,0 +1,72 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# StressSense Backend — .gitignore
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Environment & Secrets ─────────────────────────────────────────────────────
+.env
+*.env
+.env.local
+.env.production
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+.eggs/
+pip-wheel-metadata/
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Database ──────────────────────────────────────────────────────────────────
+database/database.db
+database/*.db
+*.sqlite3
+*.sqlite
+
+# ── ML Model files (large binaries — store in cloud / Git LFS) ───────────────
+model/stress_model.pkl
+model/scaler.pkl
+*.pkl
+*.joblib
+
+# ── Uploads ───────────────────────────────────────────────────────────────────
+uploads/*
+!uploads/.gitkeep
+
+# ── IDE & Editor ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+
+# ── Jupyter (if used for model development) ──────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb

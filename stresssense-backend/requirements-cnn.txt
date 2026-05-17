@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# StressSense Backend — CNN Training Dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+# Additional dependencies for training custom CNN models on facial datasets
+#
+# Install:
+#   pip install -r requirements-cnn.txt
+#
+# Or install specific components:
+#   pip install tensorflow  # For CNN training
+#   pip install kaggle      # For dataset download
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Deep Learning Framework ───────────────────────────────────────────────────
+tensorflow==2.15.0          # CNN training (CPU version)
+# tensorflow-gpu==2.15.0    # Uncomment for GPU support (requires CUDA)
+
+# ── Image Processing ──────────────────────────────────────────────────────────
+Pillow==10.3.0             # Image loading and preprocessing
+opencv-python==4.9.0.80    # Advanced image operations
+
+# ── Data Science ──────────────────────────────────────────────────────────────
+numpy==1.26.4              # Already in main requirements
+pandas==2.2.2              # Already in main requirements
+scikit-learn==1.5.0        # Already in main requirements
+matplotlib==3.8.4          # Plotting training history
+seaborn==0.13.2            # Enhanced visualizations
+
+# ── Dataset Download ──────────────────────────────────────────────────────────
+kaggle==1.6.6              # Kaggle API for dataset download
+requests==2.31.0           # HTTP requests
+tqdm==4.66.2               # Progress bars
+
+# ── Model Conversion ──────────────────────────────────────────────────────────
+tensorflowjs==4.17.0       # Convert models to TensorFlow.js
+onnx==1.16.0               # ONNX format support (optional)
+tf2onnx==1.16.1            # TensorFlow to ONNX converter (optional)
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+h5py==3.11.0               # HDF5 file format for model saving
+pyyaml==6.0.1              # Configuration files
