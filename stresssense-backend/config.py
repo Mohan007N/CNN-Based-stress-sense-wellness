@@ -59,6 +59,20 @@ class Config:
     STRESS_MODEL_PATH = os.path.join(MODEL_DIR, "stress_model.pkl")
     SCALER_PATH = os.path.join(MODEL_DIR, "scaler.pkl")
 
+    # ── Email Configuration (Resend API) ─────────────────────────────────────
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "re_dhkUgG1m_MhHK9PyTyzrtE3WhCm4U5dqN")
+    EMAIL_FROM = os.environ.get("EMAIL_FROM", "hello@stresssense.app")
+    SUPPORT_EMAIL = "hello@stresssense.app"
+    SUPPORT_PHONE = "+1 (555) 010-2025"
+    COMPANY_ADDRESS = "410 Market St, San Francisco, CA"
+    
+    # ── Developer Info ───────────────────────────────────────────────────────
+    DEVELOPER_NAME = "Mohana Krishnan"
+    DEVELOPER_EMAIL = "mohankrishnan4099@gmail.com"
+    DEVELOPER_PHONE = "+91 8610844594"
+    DEVELOPER_LOCATION = "Chennai"
+    DEVELOPER_LINKEDIN = "https://www.linkedin.com/in/mohanakrishnan-n-576565312/"
+
     # ── App Meta ─────────────────────────────────────────────────────────────
     APP_NAME = "StressSense"
     APP_VERSION = "1.0.0"

@@ -13,6 +13,8 @@ import {
   TrendingUp,
   Brain,
   Layers,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { faceDetectionService, type FaceDetectionResult } from "@/lib/face-detection";
 import { 
@@ -47,6 +49,7 @@ interface AnalysisResult {
 function CameraPanel({ onFaceDetection }: { onFaceDetection?: (data: FaceDetectionResult | null) => void }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +57,7 @@ function CameraPanel({ onFaceDetection }: { onFaceDetection?: (data: FaceDetecti
   const [modelsLoading, setModelsLoading] = useState(false);
   const [faceData, setFaceData] = useState<FaceDetectionResult | null>(null);
   const [ensembleMode, setEnsembleMode] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [ensembleStats, setEnsembleStats] = useState<{
     agreementRate: number;
     avgConfidence: { faceApi: number; cnn: number; ensemble: number };
@@ -61,7 +65,14 @@ function CameraPanel({ onFaceDetection }: { onFaceDetection?: (data: FaceDetecti
   const detectionIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    
     return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
       // Cleanup on unmount
       const stream = videoRef.current?.srcObject as MediaStream | null;
       stream?.getTracks().forEach((t) => t.stop());
@@ -70,6 +81,20 @@ function CameraPanel({ onFaceDetection }: { onFaceDetection?: (data: FaceDetecti
       }
     };
   }, []);
+
+  const toggleFullscreen = async () => {
+    if (!containerRef.current) return;
+
+    try {
+      if (!isFullscreen) {
+        await containerRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.error("Fullscreen error:", error);
+    }
+  };
 
   // Convert FaceDetectionResult to EmotionPrediction format
   const convertToEmotionPrediction = (result: FaceDetectionResult): EmotionPrediction => {
@@ -267,8 +292,13 @@ function CameraPanel({ onFaceDetection }: { onFaceDetection?: (data: FaceDetecti
   }, [active, ensembleMode, startDetection]);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)] transition-all hover:shadow-[var(--shadow-card)]">
-      <div className="flex items-center justify-between">
+    <div 
+      ref={containerRef}
+      className={`rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)] transition-all hover:shadow-[var(--shadow-card)] ${
+        isFullscreen ? "fixed inset-0 z-50 rounded-none" : "p-6"
+      }`}
+    >
+      <div className={`flex items-center justify-between ${isFullscreen ? "p-6" : ""}`}>
         <div>
           <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Brain className="h-4 w-4 text-primary" />
@@ -286,24 +316,45 @@ function CameraPanel({ onFaceDetection }: { onFaceDetection?: (data: FaceDetecti
               : "AI-powered emotion detection — 100% private"}
           </p>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-          active && faceData?.detected ? "bg-success/15 text-success" : 
-          active ? "bg-warning/15 text-warning" : 
-          "bg-muted text-muted-foreground"
-        }`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${
-            active && faceData?.detected ? "bg-success animate-pulse" : 
-            active ? "bg-warning animate-pulse" : 
-            "bg-muted-foreground"
-          }`} />
-          {active && faceData?.detected ? "Detecting" : active ? "Searching..." : "Idle"}
-        </span>
+        <div className="flex items-center gap-2">
+          {active && (
+            <button
+              onClick={toggleFullscreen}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium hover:bg-muted transition-all"
+              title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            >
+              {isFullscreen ? (
+                <>
+                  <Minimize2 className="h-3.5 w-3.5" />
+                  Exit
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="h-3.5 w-3.5" />
+                  Fullscreen
+                </>
+              )}
+            </button>
+          )}
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+            active && faceData?.detected ? "bg-success/15 text-success" : 
+            active ? "bg-warning/15 text-warning" : 
+            "bg-muted text-muted-foreground"
+          }`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${
+              active && faceData?.detected ? "bg-success animate-pulse" : 
+              active ? "bg-warning animate-pulse" : 
+              "bg-muted-foreground"
+            }`} />
+            {active && faceData?.detected ? "Detecting" : active ? "Searching..." : "Idle"}
+          </span>
+        </div>
       </div>
 
       {/* Hidden canvas for CNN frame capture */}
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-      <div className="relative mt-4 aspect-video overflow-hidden rounded-xl border border-border bg-muted shadow-inner">
+      <div className={`relative ${isFullscreen ? "h-[calc(100vh-180px)] mt-4 mx-6" : "mt-4 aspect-video"} overflow-hidden rounded-xl border border-border bg-muted shadow-inner`}>
         <video ref={videoRef} className="h-full w-full object-cover" muted playsInline />
         {!active && !loading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground bg-gradient-to-br from-muted/50 to-muted">

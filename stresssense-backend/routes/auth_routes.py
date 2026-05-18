@@ -20,6 +20,7 @@ from flask_jwt_extended import (
 
 from extensions import db
 from models.user_model import User
+from services.email_service import EmailService
 from utils.validators import validate_email, validate_password, validate_required_fields
 
 logger = logging.getLogger(__name__)
@@ -78,6 +79,12 @@ def register():
 
         db.session.add(user)
         db.session.commit()
+
+        # Send welcome email (async, don't block registration)
+        try:
+            EmailService.send_welcome_email(user.email, user.full_name)
+        except Exception as e:
+            logger.warning(f"Failed to send welcome email: {e}")
 
         # Issue tokens immediately upon registration
         access_token  = create_access_token(identity=str(user.id))

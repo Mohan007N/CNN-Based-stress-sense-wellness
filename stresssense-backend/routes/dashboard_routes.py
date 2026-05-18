@@ -127,3 +127,87 @@ def wellness_report():
     user_id = int(get_jwt_identity())
     report  = _analytics_svc.generate_wellness_report(user_id=user_id)
     return jsonify({"success": True, "report": report}), 200
+
+
+@dashboard_bp.route("/realtime-stats", methods=["GET"])
+@jwt_required()
+def realtime_stats():
+    """Return real-time dashboard statistics."""
+    user_id = int(get_jwt_identity())
+    
+    # Get today's data
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # Today's predictions
+    today_predictions = Prediction.query.filter(
+        Prediction.user_id == user_id,
+        Prediction.created_at >= today_start
+    ).all()
+    
+    # Today's emotions
+    today_emotions = EmotionLog.query.filter(
+        EmotionLog.user_id == user_id,
+        EmotionLog.created_at >= today_start
+    ).all()
+    
+    # Calculate stats
+    total_checks_today = len(today_predictions)
+    
+    # Average stress score today
+    avg_stress_today = 0
+    if today_predictions:
+        avg_stress_today = sum(p.stress_score for p in today_predictions) / len(today_predictions)
+    
+    # Current stress level (latest prediction)
+    current_stress_level = "Unknown"
+    current_stress_score = 0
+    if today_predictions:
+        latest = today_predictions[-1]
+        current_stress_level = latest.stress_level
+        current_stress_score = latest.stress_score
+    
+    # Dominant emotion today
+    dominant_emotion = "neutral"
+    if today_emotions:
+        emotion_counts = {}
+        for log in today_emotions:
+            emotion = log.emotion
+            emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+        dominant_emotion = max(emotion_counts, key=emotion_counts.get)
+    
+    # Week comparison
+    week_start = datetime.utcnow() - timedelta(days=7)
+    week_predictions = Prediction.query.filter(
+        Prediction.user_id == user_id,
+        Prediction.created_at >= week_start
+    ).all()
+    
+    avg_stress_week = 0
+    if week_predictions:
+        avg_stress_week = sum(p.stress_score for p in week_predictions) / len(week_predictions)
+    
+    # Stress trend (compared to last week)
+    stress_trend = "stable"
+    stress_change = 0
+    if avg_stress_week > 0:
+        stress_change = ((avg_stress_today - avg_stress_week) / avg_stress_week) * 100
+        if stress_change > 10:
+            stress_trend = "increasing"
+        elif stress_change < -10:
+            stress_trend = "decreasing"
+    
+    return jsonify({
+        "success": True,
+        "realtime": {
+            "current_stress_level": current_stress_level,
+            "current_stress_score": round(current_stress_score, 1),
+            "dominant_emotion": dominant_emotion,
+            "total_checks_today": total_checks_today,
+            "avg_stress_today": round(avg_stress_today, 1),
+            "avg_stress_week": round(avg_stress_week, 1),
+            "stress_trend": stress_trend,
+            "stress_change_percent": round(stress_change, 1),
+            "last_updated": datetime.utcnow().isoformat()
+        }
+    }), 200
+

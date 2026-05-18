@@ -1,472 +1,315 @@
-# 🧠 StressSense Wellness — CNN-Based Emotion & Stress Detection Platform
+# StressSense - AI-Powered Workplace Wellness Platform
 
-> An AI-powered employee wellness platform that combines **face-api.js** (browser) and a **CNN trained on FER2013** (backend) through an **ensemble system** to deliver superior real-time emotion recognition and stress analytics.
+StressSense is an intelligent workplace wellness platform that uses facial emotion recognition and machine learning to help organizations monitor and improve employee wellbeing.
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](.) [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](.) [![React](https://img.shields.io/badge/react-19-61DAFB)](.) [![Flask](https://img.shields.io/badge/flask-3.0-black)](.) [![License](https://img.shields.io/badge/license-MIT-green)](.)
+## 🚀 Features
 
----
-
-## 📋 Table of Contents
-
-- [Overview](#-overview)
-- [Architecture](#️-architecture)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Quick Start](#-quick-start)
-- [CNN Model Training](#-cnn-model-training)
-- [Ensemble System](#-ensemble-system)
-- [API Reference](#-api-reference)
-- [Performance](#-performance)
-- [Deployment](#-deployment)
-- [Documentation Index](#-documentation-index)
-
----
-
-## 🌟 Overview
-
-StressSense is a full-stack wellness application designed for workplace well-being monitoring. It uses real-time facial expression analysis powered by two independent AI models and combines their predictions using ensemble learning for higher accuracy.
-
-### Key Features
-
-| Feature | Description |
-|---------|-------------|
-| 🎭 **Ensemble Emotion Detection** | Combines face-api.js + CNN for up to **78% accuracy** |
-| 📊 **Real-time Stress Analytics** | ML-based stress score, burnout risk & wellness index |
-| 🔒 **Privacy-First** | Face data never stored; on-device + temporary frames only |
-| 🧬 **CNN on FER2013** | Trained on 35,887 real facial images — 7 emotion classes |
-| 📈 **Live Statistics** | Model agreement rate, per-model confidence, trend charts |
-| 🔑 **JWT Auth** | Secure register/login with role-based access (user + admin) |
-| 📉 **Dashboard** | Weekly wellness reports, mood trends, burnout distribution |
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                       USER INTERFACE                        │
-│   React 19 · TanStack Router · Radix UI · Tailwind CSS 4   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ Camera Panel │  │ Wellness     │  │ AI Assistant │      │
-│  │ + Ensemble   │  │ Inputs       │  │              │      │
-│  └──────┬───────┘  └──────┬───────┘  └──────────────┘      │
-└─────────┼──────────────────┼──────────────────────────────--┘
-          │                  │
-          ▼                  ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    DETECTION LAYER                          │
-│  ┌──────────────────┐        ┌──────────────────┐          │
-│  │  face-api.js     │        │  CNN Backend     │          │
-│  │  (Browser)       │        │  (Flask / GPU)   │          │
-│  │  TensorFlow.js   │        │  FER2013 trained │          │
-│  │  ~65% accuracy   │        │  ~67% accuracy   │          │
-│  └────────┬─────────┘        └────────┬─────────┘          │
-└───────────┼──────────────────────────┼─────────────────────┘
-            └──────────┬───────────────┘
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    ENSEMBLE LAYER                           │
-│  Voting · Weighted (default) · Averaging · Stacking        │
-│  → Up to 78% combined accuracy · Live agreement stats      │
-└──────────────────────────┬──────────────────────────────────┘
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    ANALYSIS LAYER                           │
-│  RandomForest Stress Prediction · Burnout Risk             │
-│  Wellness Score (0–100) · Personalized Recommendations     │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🛠 Tech Stack
-
-### Frontend (`stress-sense-wellness-main/`)
-| Layer | Technology |
-|-------|-----------|
-| Framework | React 19 + TypeScript |
-| Router | TanStack Router v1 |
-| State | TanStack Query v5 |
-| UI | Radix UI + shadcn/ui components |
-| Styling | Tailwind CSS v4 |
-| Charts | Recharts |
-| Face Detection | face-api.js + TensorFlow.js (WebGL) |
-| Build | Vite 7 |
-
-### Backend (`stresssense-backend/`)
-| Layer | Technology |
-|-------|-----------|
-| Framework | Flask 3.0 |
-| Auth | Flask-JWT-Extended |
-| ORM | Flask-SQLAlchemy |
-| Database | SQLite (dev) → PostgreSQL (prod) |
-| ML Stress | scikit-learn RandomForestClassifier |
-| Emotion CNN | TensorFlow/Keras — custom CNN on FER2013 |
-| Server | Gunicorn (production) |
-
----
+- **Real-time Emotion Detection**: CNN-based facial emotion recognition
+- **Stress Prediction**: ML model predicting stress levels from wellness indicators
+- **Ensemble Learning**: Combines multiple emotion detection methods for higher accuracy
+- **Privacy-First**: On-device processing, no data leaves your infrastructure
+- **Analytics Dashboard**: Track wellness trends and insights
+- **User Authentication**: Secure JWT-based authentication system
 
 ## 📁 Project Structure
 
 ```
-CNN Based stress sense wellness/
-│
-├── stress-sense-wellness-main/     ← React frontend (Vite + TanStack)
+.
+├── stress-sense-wellness-main/    # Frontend (React + TanStack Router + Vite)
 │   ├── src/
-│   │   ├── routes/
-│   │   │   └── analysis.tsx        ← Main camera + ensemble UI
-│   │   ├── lib/
-│   │   │   └── ensemble-emotion.ts ← Ensemble detector logic
-│   │   └── components/             ← Reusable UI components
-│   ├── package.json
-│   └── vite.config.ts
+│   │   ├── routes/               # Page routes
+│   │   ├── components/           # React components
+│   │   ├── lib/                  # Utilities and API client
+│   │   └── hooks/                # Custom React hooks
+│   └── public/                   # Static assets
 │
-├── stresssense-backend/            ← Flask REST API
-│   ├── app.py                      ← App factory & entry point
-│   ├── config.py                   ← Dev / Test / Prod configs
-│   ├── routes/                     ← Auth, prediction, dashboard, admin
-│   ├── models/                     ← SQLAlchemy models
-│   ├── services/                   ← ML, emotion, analytics services
-│   ├── model/
-│   │   ├── quick_train_cnn.py      ← Quick CNN trainer (synthetic)
-│   │   ├── train_fer2013_improved.py ← Full FER2013 trainer
-│   │   └── emotion_cnn_model.h5    ← Trained model (generated)
-│   ├── requirements.txt
-│   └── README.md
-│
-├── venv/                           ← Python virtual environment
-└── README.md                       ← You are here
+└── stresssense-backend/          # Backend (Flask + Python)
+    ├── routes/                   # API endpoints
+    ├── models/                   # Database models
+    ├── services/                 # Business logic
+    ├── model/                    # ML models
+    │   ├── emotion_cnn_model.h5  # Trained CNN model
+    │   ├── stress_model.pkl      # Stress prediction model
+    │   └── scaler.pkl            # Feature scaler
+    └── data/                     # Training datasets
 ```
 
----
+## 🛠️ Tech Stack
 
-## 🚀 Quick Start
+### Frontend
+- **Framework**: React 19
+- **Router**: TanStack Router
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **ML**: TensorFlow.js, face-api.js
+
+### Backend
+- **Framework**: Flask
+- **Database**: SQLAlchemy (SQLite/PostgreSQL)
+- **Authentication**: Flask-JWT-Extended
+- **ML**: TensorFlow, scikit-learn
+- **Image Processing**: OpenCV, PIL
+
+## 📦 Installation
 
 ### Prerequisites
+- Node.js 18+ and npm
+- Python 3.8+
+- Git
 
-- **Node.js** ≥ 18 and **npm** ≥ 9
-- **Python** ≥ 3.10
-- **Git**
-
----
-
-### 1. Clone the Repository
+### Backend Setup
 
 ```bash
-git clone <your-repo-url>
-cd "CNN Based stress sense wellness"
-```
-
----
-
-### 2. Set Up the Backend
-
-```bash
+# Navigate to backend directory
 cd stresssense-backend
 
-# Create and activate virtual environment
+# Create virtual environment
 python -m venv venv
 
+# Activate virtual environment
 # Windows:
 venv\Scripts\activate
-
-# macOS/Linux:
+# Linux/Mac:
 source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Copy and configure environment
-cp .env.example .env
-# Edit .env — set SECRET_KEY, JWT_SECRET_KEY, etc.
+# Install CNN dependencies (optional, for training)
+pip install -r requirements-cnn.txt
 
-# Train the stress prediction model (one-time)
-python model/train_model.py
-
-# (Optional) Quick-train the CNN emotion model
-python model/quick_train_cnn.py
-
-# Start the backend server
+# Run the backend
 python app.py
 ```
 
-> Backend is live at: **`http://localhost:5000`**
+Backend will run on `http://localhost:5000`
 
----
-
-### 3. Set Up the Frontend
-
-Open a **new terminal** in the project root:
+### Frontend Setup
 
 ```bash
+# Navigate to frontend directory
 cd stress-sense-wellness-main
 
 # Install dependencies
 npm install
 
-# Start the dev server
+# Run the development server
 npm run dev
 ```
 
-> Frontend is live at: **`http://localhost:5173`**
+Frontend will run on `http://localhost:8080`
 
----
+## 🔑 Authentication
 
-### 4. Use the Application
+### Test User Credentials
+```
+Email: test@stresssense.ai
+Password: test123
+```
 
-1. Open **`http://localhost:5173`** → Register / Login
-2. Navigate to **`/analysis`**
-3. Click **"Start camera"** → grant camera permission
-4. Click the **"Ensemble"** toggle to activate dual-model detection
-5. Watch real-time emotion scores, agreement rate, and confidence
-
----
-
-## 🧬 CNN Model Training
-
-The CNN emotion model can be trained at two levels:
-
-### Option A — Quick Train (Synthetic, ~5 min)
+### Create New User
+Use the registration page at `/register` or use the API:
 
 ```bash
-cd stresssense-backend
-python model/quick_train_cnn.py
+POST /api/auth/register
+{
+  "full_name": "John Doe",
+  "email": "john@company.com",
+  "password": "secure123",
+  "department": "Engineering",
+  "position": "Developer"
+}
 ```
 
-Generates `emotion_cnn_model.h5` quickly for development/testing. Accuracy: ~13–20%.
+## 🧠 ML Models
 
----
+### 1. CNN Emotion Recognition Model
+- **Architecture**: Custom CNN with 3 convolutional blocks
+- **Input**: 48×48 grayscale facial images
+- **Output**: 7 emotions (angry, disgust, fear, happy, sad, surprise, neutral)
+- **Location**: `stresssense-backend/model/emotion_cnn_model.h5`
+- **Status**: ✅ Trained and ready
 
-### Option B — Full Train on FER2013 (~2–4 hours)
+### 2. Stress Prediction Model
+- **Algorithm**: Random Forest Classifier
+- **Features**: 8 wellness indicators (sleep, work hours, pressure, etc.)
+- **Output**: 3 stress levels (Low, Moderate, High)
+- **Location**: `stresssense-backend/model/stress_model.pkl`
+- **Accuracy**: 87.5%
 
-FER2013 contains **35,887 grayscale 48×48 face images** across 7 emotions:
-`Angry · Disgust · Fear · Happy · Sad · Surprise · Neutral`
+### 3. Ensemble System
+Combines multiple emotion detection methods:
+- CNN model (custom trained)
+- face-api.js (pre-trained)
+- Weighted voting for final prediction
 
-**Windows:**
-```bat
-cd stresssense-backend
-setup_fer2013_training.bat
-python model/train_fer2013_improved.py --download
-python model/train_fer2013_improved.py
-```
+## 📊 API Endpoints
 
-**macOS / Linux:**
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/me` - Get current user
+- `POST /api/auth/logout` - Logout user
+
+### Predictions
+- `POST /api/predict/stress` - Predict stress level
+- `POST /api/predict/emotion` - Detect emotion from image
+- `GET /api/predict/history` - Get prediction history
+
+### Dashboard
+- `GET /api/dashboard/stats` - Get user statistics
+- `GET /api/dashboard/trends` - Get wellness trends
+
+## 🎯 Training Your Own CNN Model
+
+### Using Sample Data (Quick Test)
 ```bash
 cd stresssense-backend
-chmod +x setup_fer2013_training.sh && ./setup_fer2013_training.sh
-python model/train_fer2013_improved.py --download
-python model/train_fer2013_improved.py
+python model/download_datasets.py --dataset sample
+python model/train_emotion_cnn.py --dataset custom --data_path data/sample_emotions --epochs 20
 ```
 
-**Custom Hyperparameters:**
+### Using FER2013 Dataset (Production)
 ```bash
-python model/train_fer2013_improved.py \
-  --epochs 100 \
-  --batch_size 64 \
-  --learning_rate 0.001
+# 1. Install Kaggle API
+pip install kaggle
+
+# 2. Setup Kaggle credentials
+# Download kaggle.json from https://www.kaggle.com/account
+# Place in ~/.kaggle/ (Linux/Mac) or C:\Users\<username>\.kaggle\ (Windows)
+
+# 3. Download FER2013
+python model/download_datasets.py --dataset fer2013 --use_kaggle
+
+# 4. Train CNN (1-2 hours)
+python model/train_emotion_cnn.py --dataset fer2013 --epochs 50
+
+# Expected accuracy: 65-70%
 ```
 
-**CNN Architecture:**
-- 4 Convolutional blocks (BatchNorm + MaxPool + Dropout)
-- Global Average Pooling
-- Adam optimizer + LR scheduling + early stopping
-- Data augmentation: rotation, shift, zoom, horizontal flip
+## 🔧 Configuration
 
-**Expected Accuracy after full training:** ~65–70%
-
----
-
-## 🔷 Ensemble System
-
-The ensemble system combines **face-api.js** (browser) and **CNN** (backend) predictions.
-
-### Ensemble Methods
-
-| Method | How It Works | Best For |
-|--------|-------------|----------|
-| **Weighted** *(default)* | 60% face-api + 40% CNN | Balanced accuracy |
-| **Voting** | Simple majority vote | Fast, simple |
-| **Averaging** | Average all scores | Smooth output |
-| **Stacking** | Meta-model combination | Highest potential |
-
-### Performance
-
-| Mode | Accuracy | Agreement Rate |
-|------|----------|----------------|
-| face-api.js only | ~65% | — |
-| CNN only (trained) | ~67% | — |
-| **Ensemble (trained)** | **~78%** | **~75%** |
-
-### Enabling Ensemble
-
-```typescript
-// In browser console (F12) — adjust weights
-ensembleDetector.updateConfig({
-  method: 'weighted',
-  weights: { faceApi: 0.6, cnn: 0.4 }
-});
+### Backend Environment Variables
+Create `.env` file in `stresssense-backend/`:
+```env
+FLASK_ENV=development
+SECRET_KEY=your-secret-key
+JWT_SECRET_KEY=your-jwt-secret
+DATABASE_URL=sqlite:///database/database.db
+CORS_ORIGINS=*
 ```
 
----
-
-## 📡 API Reference
-
-### Authentication — `/api/auth`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/register` | ❌ | Create account |
-| POST | `/login` | ❌ | Login & get JWT |
-| POST | `/refresh` | 🔑 | Refresh access token |
-| GET | `/me` | 🔑 | Current user profile |
-| PUT | `/profile` | 🔑 | Update profile |
-| POST | `/change-password` | 🔑 | Change password |
-| POST | `/logout` | 🔑 | Logout |
-
-### Prediction — `/api/predict`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/stress` | 🔑 | ML stress prediction |
-| POST | `/emotion` | 🔑 | Emotion score analysis |
-| POST | `/emotion/image` | 🔑 | CNN face image analysis |
-| GET | `/history` | 🔑 | Paginated history |
-
-### Dashboard — `/api/dashboard`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/analytics` | 🔑 | Stress & wellness trends |
-| GET | `/summary` | 🔑 | Weekly wellness cards |
-| GET | `/mood-trend` | 🔑 | Emotion trend (N days) |
-| GET | `/burnout-stats` | 🔑 | Burnout distribution |
-| GET | `/wellness-report` | 🔑 | Full weekly report |
-
-🔑 = JWT Bearer token required &nbsp;&nbsp; 👑 = Admin JWT required
-
----
-
-## 📊 Performance
-
-### Accuracy Comparison
-
+### Frontend Environment Variables
+Create `.env` file in `stress-sense-wellness-main/`:
+```env
+VITE_API_URL=http://localhost:5000/api
 ```
-Synthetic CNN (no training):   13.57% ❌
-After FER2013 Training:        67.34% ✅  (+53.77%)
-face-api.js alone:             65%    ✅
-Ensemble (both trained):       78%    🏆 (+13% over single model)
-```
-
-### Technical Metrics
-
-| Metric | Value |
-|--------|-------|
-| Detection speed | ~1 per second (ensemble) |
-| Model size | ~50 MB |
-| Memory during inference | ~200 MB |
-| Build time | ~17.79 s |
-| Supported emotions | 7 (Angry, Disgust, Fear, Happy, Sad, Surprise, Neutral) |
-
----
 
 ## 🚀 Deployment
 
-### Render / Railway (Recommended)
-
-1. Push `stresssense-backend/` to GitHub
-2. Connect to Render/Railway, point at the repo
-3. Set environment variables from `.env.example`
-4. The `Procfile` handles startup:
-   ```
-   web: gunicorn wsgi:app --workers 4 --timeout 120
-   ```
-
-### Frontend (Cloudflare Pages / Vercel)
-
+### Backend (Production)
 ```bash
-cd stress-sense-wellness-main
+# Install gunicorn
+pip install gunicorn
+
+# Run with gunicorn
+gunicorn app:app --bind 0.0.0.0:5000 --workers 4
+```
+
+### Frontend (Production)
+```bash
+# Build for production
 npm run build
-# Deploy the dist/ folder
+
+# Preview production build
+npm run preview
 ```
 
-### Manual Gunicorn
+## 📝 Development
 
+### Backend Development
 ```bash
-cd stresssense-backend
-gunicorn wsgi:app --bind 0.0.0.0:5000 --workers 4 --timeout 120
+# Run with auto-reload
+FLASK_ENV=development python app.py
+
+# Create admin user
+flask seed-admin
 ```
 
----
+### Frontend Development
+```bash
+# Run dev server with hot reload
+npm run dev
 
-## 🔒 Security
+# Lint code
+npm run lint
 
-- Passwords hashed with **PBKDF2-SHA256** (Werkzeug)
-- **JWT access tokens** expire in 24 hours; refresh tokens in 30 days
-- Face images are **never stored** — temporary frames only
-- **CORS** restricted to `CORS_ORIGINS` in production
-- Never commit `.env` — use `.env.example` as template
+# Format code
+npm run format
+```
 
----
+## 🧪 Testing
 
-## 📚 Documentation Index
+### Test Login API
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@stresssense.ai","password":"test123"}'
+```
 
-### Quick References
-| File | Purpose |
-|------|---------|
-| [`ENSEMBLE_QUICK_START.md`](./ENSEMBLE_QUICK_START.md) | 3-step ensemble usage guide |
-| [`QUICK_TRAIN_REFERENCE.md`](./QUICK_TRAIN_REFERENCE.md) | Train CNN in 3 commands |
-| [`QUICK_START.md`](./QUICK_START.md) | General project quick start |
+### Test Stress Prediction
+```bash
+curl -X POST http://localhost:5000/api/predict/stress \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "sleep_hours": 7,
+    "working_hours": 8,
+    "work_pressure": 5,
+    "physical_activity": 3,
+    "remote_work": 1,
+    "emotion_score": 75,
+    "fatigue_score": 30,
+    "focus_score": 80
+  }'
+```
 
-### Detailed Guides
-| File | Purpose |
-|------|---------|
-| [`ENSEMBLE_INTEGRATION_COMPLETE.md`](./ENSEMBLE_INTEGRATION_COMPLETE.md) | Full ensemble technical docs |
-| [`TRAIN_WITH_REAL_DATA.md`](./TRAIN_WITH_REAL_DATA.md) | Complete FER2013 training guide |
-| [`IMPROVEMENTS.md`](./IMPROVEMENTS.md) | All improvements and summaries |
+## 📚 Documentation
 
-### Reference
-| File | Purpose |
-|------|---------|
-| [`ENSEMBLE_COMPARISON.md`](./ENSEMBLE_COMPARISON.md) | Compare ensemble methods |
-| [`ENSEMBLE_VISUAL_GUIDE.md`](./ENSEMBLE_VISUAL_GUIDE.md) | ASCII diagrams & visualizations |
-| [`CNN_TRAINING_GUIDE.md`](./stresssense-backend/CNN_TRAINING_GUIDE.md) | CNN training deep dive |
-
-### Summaries
-| File | Purpose |
-|------|---------|
-| [`FINAL_SUMMARY.md`](./FINAL_SUMMARY.md) | Complete implementation summary |
-| [`ENSEMBLE_SUMMARY.md`](./ENSEMBLE_SUMMARY.md) | Ensemble executive summary |
-| [`REAL_DATA_TRAINING_COMPLETE.md`](./REAL_DATA_TRAINING_COMPLETE.md) | Training completion report |
-
----
-
-## 🗺️ Roadmap
-
-- [ ] Fine-tune ensemble weights per user session
-- [ ] Add DeepFace as a 3rd model in the ensemble
-- [ ] Implement dynamic weighting (A/B testing)
-- [ ] Mobile app support (React Native)
-- [ ] PostgreSQL migration for production scale
-- [ ] Prometheus + Grafana monitoring
-
----
+- **Backend API**: See `stresssense-backend/README.md`
+- **Dataset Info**: See `stresssense-backend/DATASET_INFO.md`
+- **Model Training**: See training scripts in `stresssense-backend/model/`
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
----
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License.
+
+## 🙏 Acknowledgments
+
+- **FER2013 Dataset**: Facial Expression Recognition dataset
+- **face-api.js**: Face detection and recognition library
+- **TensorFlow**: Machine learning framework
+- **Flask**: Python web framework
+- **React**: Frontend library
+
+## 📧 Support
+
+For issues and questions:
+- Open an issue on GitHub
+- Email: support@stresssense.ai
 
 ---
 
-*Built with ❤️ for employee wellness · Powered by AI · Privacy-first design*
+**Built with ❤️ for healthier workplaces**
 
-**Version**: 1.0.0 &nbsp;|&nbsp; **Last Updated**: 2026-05-17 &nbsp;|&nbsp; **Build**: ✅ Passing
+**Version**: 1.0.0  
+**Last Updated**: May 2026
